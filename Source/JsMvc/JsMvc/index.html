@@ -1,0 +1,26 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <script src="Scripts/jsMvc.js"></script>
+</head>
+<body>
+    <div view></div>
+    <script>
+        jsMvc.AddRoute(HomeController, 'home', '/Views/home.html');
+        jsMvc.AddRoute(ContactController, 'contact', '/Views/contact.html');
+        jsMvc.Initialize();
+            
+        function HomeController(model)
+        {
+            model.Message = 'Hello World';
+        }
+
+        function ContactController(model) {
+            model.FirstName = 'Nitij';
+            model.LastName = 'Jhangra';
+            model.Phone = '09982211288';
+        }
+    </script>
+</body>
+</html>
