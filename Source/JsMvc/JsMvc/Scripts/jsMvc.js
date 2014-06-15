@@ -4,14 +4,24 @@
     //Flag to indicate if the Mvc manager object can start functioning or not
     var _start = false;
     
+    //location object
+    var _loc = w.location;
+    
     //gets the origin of the current url
-    var _origin = w.location.origin;
+    var _origin = _loc.origin;
+
+    //Failsafe for stupid internet explorer
+    if ( !_origin ) {
+        _origin = _loc.protocol
+            + "//" + _loc.hostname
+            + ( _loc.port ? ':' + _loc.port : '' );
+    }
     
     //gets the pathname of the current url
-    var _pathName = w.location.pathname;
+    var _pathName = _loc.pathname;
 
     //get the hash of the current url
-    var _hash = w.location.hash;
+    var _hash = _loc.hash;
 
     //Object to store the default route
     var _defaultRoute = null;
@@ -20,6 +30,7 @@
     var _viewElement = null;
 
     //Main Mvc manager object
+    /** @constructor */
     var jsMvc = function () {
         //mapping object for the routes
         this._routeMap = {};
@@ -170,6 +181,7 @@
     }
 
     //Route Object
+    /** @constructor */
     var routeObj = function ( c, r, t ) {
         var routeParams = [];
 
