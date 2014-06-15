@@ -61,6 +61,7 @@
     <Content Include="Scripts\jsMvc.js" />
     <Content Include="Views\contact.html" />
     <Content Include="Views\home.html" />
+    <Content Include="Views\person.html" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
