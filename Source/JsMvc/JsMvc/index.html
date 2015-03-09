@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
     <title></title>
@@ -19,9 +19,9 @@
         jsMvc.AddRoute(PersonController, 'person/{{personType}}/{{personId}}', '/Views/person.html');
         jsMvc.Initialize();
         
-        function HomeController(model)
-        {
+        function HomeController(model) {
             model.Message = 'Hello World';
+            this.View.Render();
         }
 
         function ContactController(model) {
@@ -32,11 +32,15 @@
             };
             
             model.Contact = Contact;
+
+            this.View.Render();
         }
 
         function PersonController(model, params) {
             model.PersonType = params.personType;
             model.PersonId = params.personId;
+
+            this.View.Render();
         }
     </script>
 </body>
