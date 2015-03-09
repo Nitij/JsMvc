@@ -1,4 +1,4 @@
-﻿;
+;
 (function ( w, d, undefined ) {
 
     //Flag to indicate if the Mvc manager object can start functioning or not
@@ -146,7 +146,11 @@
         var model = {},
             params = {},
             sourceParmas = routeObject.params,
-            modelBindings = [];
+            modelBindings = [],
+            renderViewDelegate = renderView.bind(renderView, viewElement, viewHtml, model),
+            viewContainer = {
+                'View': { 'Render': renderViewDelegate }
+            };
 
         //get the hash array so as to get the different pats 
         var hashArray = getHashArray( pageHash );
@@ -166,15 +170,19 @@
             }
 
             //pass on the model as well as params object to be used by the controller function
-            routeObject.controller( model, params );
+            //Set the view container as the controller function's scope 
+            //so that the controller can render the when view when it wants it to.
+            routeObject.controller.bind(viewContainer, model, params)();
         }
         else {
             //get the resultant model from the controller of the current route
-            routeObject.controller( model );
+            routeObject.controller.bind(viewContainer, model)();
         }
+    }
 
+    function renderView(viewElement, viewHtml, model) {
         //bind the model with the view
-        viewHtml = replaceToken( viewHtml, model );
+        viewHtml = replaceToken(viewHtml, model);
 
         //load the view into the view element
         viewElement.innerHTML = viewHtml;
