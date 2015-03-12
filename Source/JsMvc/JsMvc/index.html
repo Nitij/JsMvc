@@ -3,44 +3,106 @@
 <head>
     <title></title>
     <script src="Scripts/jsMvc.js"></script>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
 </head>
 <body>
     <h3>Navigation Links</h3>
-    <a href ="index.html#/home">Home</a>&nbsp;
-    <a href ="index.html#/contact">Contact</a>&nbsp;
-    <a href ="index.html#/person/employee/5">Employee with Id 5</a>&nbsp;
-    <a href ="index.html#/person/admin/8">Admin with Id 8</a>&nbsp;
-    <br /><br />
+    <a href="index.html#/home">Home</a>&nbsp;
+   
+    <a href="index.html#/contact">Contact</a>&nbsp;
+   
+    <a href="index.html#/person/employee/5">Employee with Id 5</a>&nbsp;
+   
+    <a href="index.html#/person/admin/8">Admin with Id 8</a>&nbsp;
+
+    <br />
+    Get weather information:
+   
+    <br />
+    <br />
+    <select id="cboStates" name="select">
+        <option value="INXX0096" selected>New Delhi</option>
+        <option value="INXX0087">Mumbai</option>
+        <option value="INXX0057">Hyderabad</option>
+        <option value="INXX0012">Bangalore</option>
+        <option value="INXX0059">Jaipur</option>
+    </select>
+    <br />
+    <br />
+    <a id="lnkGetWeather" href="#" onclick="">Get Weather Information</a>&nbsp;
+
+    <br />
+    <br />
     <h3>View</h3>
     <div view></div>
     <script>
+
+        var cboStates = null,
+            lnkGetWeather = null;
+        document.addEventListener('DOMContentLoaded', onLoad);
+
+        function onLoad()
+        {
+            cboStates = document.getElementById('cboStates');
+            lnkGetWeather = document.getElementById('lnkGetWeather');
+
+            lnkGetWeather.addEventListener('click', function (e)
+            {
+                window.open("index.html#/weather/" + cboStates.value, '_parent');
+                e.preventDefault();
+            });
+        }
+
         jsMvc.AddRoute(HomeController, 'home', '/Views/home.html');
         jsMvc.AddRoute(ContactController, 'contact', '/Views/contact.html');
         jsMvc.AddRoute(PersonController, 'person/{{personType}}/{{personId}}', '/Views/person.html');
+        jsMvc.AddRoute(WeatherController, 'weather/{{city}}', '/Views/weather.html');
         jsMvc.Initialize();
-        
-        function HomeController(model) {
+
+        function HomeController(view, model)
+        {
             model.Message = 'Hello World';
-            this.View.Render();
         }
 
-        function ContactController(model) {
+        function ContactController(view, model)
+        {
             var Contact = {
                 'FirstName': 'Nitij',
                 'LastName': 'Jhangra',
                 'Phone': '09982211288'
             };
-            
-            model.Contact = Contact;
 
-            this.View.Render();
+            model.Contact = Contact;
         }
 
-        function PersonController(model, params) {
+        function PersonController(view, model, params)
+        {
             model.PersonType = params.personType;
             model.PersonId = params.personId;
+        }
 
-            this.View.Render();
+        function WeatherController(view, model, params)
+        {
+            var cityCode = params.city;
+
+            view.isAsync = true;
+
+            var query = escape('select item from weather.forecast where location="' + cityCode + '"'),
+            url = "http://query.yahooapis.com/v1/public/yql?q=" + query + "&format=json&callback=?";
+
+            $.getJSON(url, function (data)
+            {
+                if (data) {
+                    model.Title = data.query.results.channel.item.title;
+                    model.Date = data.query.results.channel.item.pubDate;
+                    model.Longitude = data.query.results.channel.item.lat;
+                    model.Latitude = data.query.results.channel.item.long;
+                    model.Description = data.query.results.channel.item.description;
+
+                    view.render();
+                }
+            });
+
         }
     </script>
 </body>
