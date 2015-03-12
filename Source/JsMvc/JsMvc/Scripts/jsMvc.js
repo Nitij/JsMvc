@@ -29,6 +29,9 @@
     //element that will be used to render the view
     var _viewElement = null;
 
+    //Flag to determine if the view has been rendered from the controller or not.
+    var _rendered = false;
+
     //Main Mvc manager object
     /** @constructor */
     var jsMvc = function () {
@@ -148,9 +151,10 @@
             sourceParmas = routeObject.params,
             modelBindings = [],
             renderViewDelegate = renderView.bind(renderView, viewElement, viewHtml, model),
-            viewContainer = {
-                'View': { 'Render': renderViewDelegate }
-            };
+            view = new viewContainer(renderViewDelegate);            
+
+        //reset the flag
+        _rendered = false;
 
         //get the hash array so as to get the different pats 
         var hashArray = getHashArray( pageHash );
@@ -172,12 +176,16 @@
             //pass on the model as well as params object to be used by the controller function
             //Set the view container as the controller function's scope 
             //so that the controller can render the when view when it wants it to.
-            routeObject.controller.bind(viewContainer, model, params)();
+            routeObject.controller(view, model, params);
         }
         else {
             //get the resultant model from the controller of the current route
-            routeObject.controller.bind(viewContainer, model)();
+            routeObject.controller(view, model);
         }
+
+        //If the view is not in async mode and is not rendered from the controller function then render it from here
+        if (!view.isAsync && !_rendered)
+            renderView(viewElement, viewHtml, model)
     }
 
     function renderView(viewElement, viewHtml, model) {
@@ -186,6 +194,16 @@
 
         //load the view into the view element
         viewElement.innerHTML = viewHtml;
+
+        //Set the _rendered flag to true indicating that the view has been rendered
+        _rendered = true;
+    }
+
+    //View Container Object
+    /** @constructor */
+    var viewContainer = function (renderDelegate) {
+        this.render = renderDelegate;
+        this.isAsync = false;
     }
 
     //Route Object
