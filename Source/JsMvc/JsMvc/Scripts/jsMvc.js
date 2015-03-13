@@ -150,7 +150,7 @@
             params = {},
             sourceParmas = routeObject.params,
             modelBindings = [],
-            renderViewDelegate = renderView.bind(renderView, viewElement, viewHtml, model),
+            renderViewDelegate = renderView.bind(null, viewElement, viewHtml, model),
             view = new viewContainer(renderViewDelegate);            
 
         //reset the flag
