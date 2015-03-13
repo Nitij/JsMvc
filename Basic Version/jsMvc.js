@@ -1,7 +1,8 @@
 ; (function (w, d, undefined)
 {    
-    var _viewElement = null, //element that will be used to render the view    
-        _defaultRoute = null;
+    var _viewElement = null,    //element that will be used to render the view    
+        _defaultRoute = null,   //Object to store the default route
+        _rendered = false;      //Flag to determine if the view has been rendered from the controller or not.
 
     var jsMvc = function () {
         //mapping object for the routes
@@ -58,12 +59,39 @@
 
     //Function to load the view with the template
     function loadView(routeObject, viewElement, viewHtml) {
-        var model = {};        
-        routeObject.controller(model); //get the resultant model from the controller of the current route
+        var model = {},
+            renderViewDelegate = renderView.bind(null, viewElement, viewHtml, model),
+            view = new viewContainer(renderViewDelegate);
+
+        routeObject.controller(view, model); //get the resultant model from the controller of the current route
         
         viewHtml = replaceToken(viewHtml, model); //bind the model with the view
         
         viewElement.innerHTML = viewHtml; //load the view into the view element
+
+        //If the view is not in async mode and is not rendered from the controller function then render it from here
+        if (!view.isAsync && !_rendered)
+            renderView(viewElement, viewHtml, model)
+    }
+
+    function renderView(viewElement, viewHtml, model)
+    {
+        //bind the model with the view
+        viewHtml = replaceToken(viewHtml, model);
+
+        //load the view into the view element
+        viewElement.innerHTML = viewHtml;
+
+        //Set the _rendered flag to true indicating that the view has been rendered
+        _rendered = true;
+    }
+
+    //View Container Object
+    /** @constructor */
+    var viewContainer = function (renderDelegate)
+    {
+        this.render = renderDelegate;
+        this.isAsync = false;
     }
 
     function replaceToken(viewHtml, model) {
