@@ -3,6 +3,7 @@
 <head>
     <title></title>
     <script src="jsMvc.js"></script>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
     <!--[if lt IE 9]>
         <script src="jsMvc-ie8.js"></script>
     <![endif]-->
@@ -38,27 +39,68 @@
     </div>
     <br />
     <br />
+    <a id="lnkGetWeather" href="#" onclick="">Get Weather Information</a>&nbsp;
+
+    <br />
+    <br />
     <h3>View</h3>
     <div view></div>
     <script>
         jsMvc.AddRoute(HomeController, 'home', 'Views/home.html');
         jsMvc.AddRoute(ContactController, 'contact', 'Views/contact.html');
         jsMvc.AddRoute(AdminController, 'admin', 'Views/admin.html');
+        jsMvc.AddRoute(WeatherController, 'weather', 'Views/weather.html');
         jsMvc.Initialize();
 
-        function HomeController(model) {
+        var lnkGetWeather = null;
+        document.addEventListener('DOMContentLoaded', onLoad);
+        function onLoad() {
+            cboStates = document.getElementById('cboStates');
+            lnkGetWeather = document.getElementById('lnkGetWeather');
+
+            lnkGetWeather.addEventListener('click', function (e)
+            {
+                window.open("index.html#/weather", '_parent');
+                e.preventDefault();
+            });
+        }
+
+        function HomeController(view, model) {
             model.Message = 'Hello World';
         }
 
-        function ContactController(model) {
+        function ContactController(view, model) {
             model.FirstName = "John";
             model.LastName = "Doe";
             model.Phone = '555-123456';
         }
 
-        function AdminController(model) {
+        function AdminController(view, model) {
             model.UserName = "John";
             model.Password = "MyPassword";
+        }
+
+        function WeatherController(view, model) {
+
+            view.isAsync = true;
+
+            var query = escape('select item from weather.forecast where location="INXX0096"'),
+            url = "http://query.yahooapis.com/v1/public/yql?q=" + query + "&format=json&callback=?";
+
+            $.getJSON(url, function (data)
+            {
+                if (data)
+                {
+                    model.Title = data.query.results.channel.item.title;
+                    model.Date = data.query.results.channel.item.pubDate;
+                    model.Longitude = data.query.results.channel.item.lat;
+                    model.Latitude = data.query.results.channel.item.long;
+                    model.Description = data.query.results.channel.item.description;
+
+                    view.render();
+                }
+            });
+
         }
     </script>
 </body>
